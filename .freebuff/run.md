@@ -1,4 +1,4 @@
-# FreeBudget — Run Instructions
+
 
 ## Reproduce Artifacts
 1. `npm install` — install backend dependencies
