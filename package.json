@@ -1,0 +1,30 @@
+{
+  "name": "freebudget",
+  "version": "1.0.0",
+  "description": "A feature-rich local budgeting app with Plaid bank integration",
+  "main": "server.js",
+  "scripts": {
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "nodemon server.js",
+    "client": "cd client && npm run dev",
+    "build": "cd client && npm run build",
+    "prod": "NODE_ENV=production node server.js"
+  },
+  "keywords": ["budget", "finance", "plaid"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "better-sqlite3": "^13.0.2",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "helmet": "^8.3.0",
+    "morgan": "^1.11.0",
+    "plaid": "^45.0.0",
+    "uuid": "^14.0.1"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.4",
+    "nodemon": "^3.1.14"
+  }
+}
