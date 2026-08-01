@@ -5,6 +5,8 @@ const navItems = [
   { path: '/', icon: 'ri-dashboard-line', label: 'Home' },
   { path: '/transactions', icon: 'ri-exchange-line', label: 'Transactions' },
   { path: '/budgets', icon: 'ri-wallet-line', label: 'Budgets' },
+  { path: '/goals', icon: 'ri-piggy-bank-line', label: 'Goals' },
+  { path: '/subscriptions', icon: 'ri-repeat-line', label: 'Bills' },
   { path: '/analytics', icon: 'ri-pie-chart-line', label: 'Analytics' },
   { path: '/settings', icon: 'ri-settings-line', label: 'Settings' },
 ]

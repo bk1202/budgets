@@ -84,6 +84,28 @@ router.patch('/:id', (req, res) => {
   }
 });
 
+// POST /api/transactions - manually create a transaction
+router.post('/', (req, res) => {
+  const db = getDB();
+  const { name, amount, date, category_id, merchant, notes, account_id } = req.body;
+  if (!name || amount === undefined || !date) {
+    return res.status(400).json({ error: 'Name, amount, and date are required' });
+  }
+  const parsedAmount = parseFloat(amount);
+  if (isNaN(parsedAmount)) {
+    return res.status(400).json({ error: 'Invalid amount' });
+  }
+  try {
+    const result = db.prepare(`
+      INSERT INTO transactions (name, amount, date, category_id, merchant, notes, account_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run(name, parsedAmount, date, category_id || null, merchant || null, notes || null, account_id || null);
+    res.status(201).json({ id: result.lastInsertRowid, name, amount: parsedAmount, date });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // POST /api/transactions/bulk-update-category - bulk assign category
 router.post('/bulk-update-category', (req, res) => {
   const db = getDB();

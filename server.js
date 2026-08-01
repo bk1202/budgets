@@ -12,6 +12,9 @@ const plaidRouter = require('./routes/plaid');
 const analyticsRouter = require('./routes/analytics');
 const categoriesRouter = require('./routes/categories');
 const accountsRouter = require('./routes/accounts');
+const goalsRouter = require('./routes/goals');
+const subscriptionsRouter = require('./routes/subscriptions');
+const exportRouter = require('./routes/export');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -32,6 +35,9 @@ app.use('/api/plaid', plaidRouter);
 app.use('/api/analytics', analyticsRouter);
 app.use('/api/categories', categoriesRouter);
 app.use('/api/accounts', accountsRouter);
+app.use('/api/goals', goalsRouter);
+app.use('/api/subscriptions', subscriptionsRouter);
+app.use('/api/export', exportRouter);
 
 // Serve frontend in production
 if (process.env.NODE_ENV === 'production') {
