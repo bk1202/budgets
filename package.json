@@ -8,7 +8,8 @@
     "server": "nodemon server.js",
     "client": "cd client && npm run dev",
     "build": "cd client && npm run build",
-    "prod": "NODE_ENV=production node server.js"
+    "prod": "NODE_ENV=production node server.js",
+    "push": "git add -A && git commit -m \"quick update\" && git push origin main"
   },
   "keywords": ["budget", "finance", "plaid"],
   "author": "",

@@ -3,19 +3,49 @@ const router = express.Router();
 const { Configuration, PlaidApi, PlaidEnvironments } = require('plaid');
 const { getDB } = require('../db');
 
-// Initialize Plaid client
+// Extract a readable error detail from a Plaid SDK error
+function plaidErrorDetail(err) {
+  const data = err.response?.data;
+  let detail;
+  if (typeof data === 'object' && data !== null) {
+    detail = data.display_message || data.error_message || JSON.stringify(data);
+  } else {
+    detail = String(data !== undefined ? data : err.message || '');
+  }
+  return detail || 'Unknown error (check server logs)';
+}
+
 const getPlaidClient = () => {
+  const env = (process.env.PLAID_ENV || 'sandbox').trim();
   const config = new Configuration({
-    basePath: PlaidEnvironments[process.env.PLAID_ENV || 'sandbox'],
+    basePath: PlaidEnvironments[env],
     baseOptions: {
       headers: {
-        'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,
-        'PLAID-SECRET': process.env.PLAID_SECRET,
+        'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID?.trim(),
+        'PLAID-SECRET': process.env.PLAID_SECRET?.trim(),
       },
     },
   });
   return new PlaidApi(config);
 };
+
+// GET /api/plaid/test - diagnostic endpoint
+router.get('/test', (req, res) => {
+  try {
+    const env = (process.env.PLAID_ENV || 'sandbox').trim();
+    const clientId = (process.env.PLAID_CLIENT_ID || '').trim();
+    const hasSecret = !!(process.env.PLAID_SECRET || '').trim();
+    res.json({
+      env,
+      clientIdPrefix: clientId.substring(0, 6) + '...',
+      hasSecret,
+      plaidEnvironmentsAvailable: typeof PlaidEnvironments === 'object' && Object.keys(PlaidEnvironments),
+      basePath: PlaidEnvironments[env] || 'UNDEFINED - check PLAID_ENV',
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Test endpoint failed', detail: err.message });
+  }
+});
 
 // POST /api/plaid/create-link-token
 router.post('/create-link-token', async (req, res) => {
@@ -30,8 +60,13 @@ router.post('/create-link-token', async (req, res) => {
     });
     res.json({ link_token: response.data.link_token });
   } catch (err) {
-    console.error('Plaid link token error:', err.response?.data || err.message);
-    res.status(500).json({ error: 'Failed to create link token' });
+    console.error('=== PLAID LINK TOKEN ERROR ===');
+    console.error('Error keys:', Object.keys(err));
+    console.error('Error message:', err.message);
+    console.error('Error response data:', JSON.stringify(err.response?.data));
+    console.error('Error config url:', err.config?.url);
+    console.error('Full error:', err);
+    res.status(500).json({ error: 'Failed to create link token', detail: plaidErrorDetail(err) });
   }
 });
 
@@ -70,7 +105,7 @@ router.post('/exchange-token', async (req, res) => {
     res.json({ success: true, institution: institutionName });
   } catch (err) {
     console.error('Plaid exchange error:', err.response?.data || err.message);
-    res.status(500).json({ error: 'Failed to exchange token' });
+    res.status(500).json({ error: 'Failed to exchange token', detail: plaidErrorDetail(err) });
   }
 });
 
@@ -89,7 +124,7 @@ router.post('/sync', async (req, res) => {
     res.json({ success: true, synced: total });
   } catch (err) {
     console.error('Sync error:', err.response?.data || err.message);
-    res.status(500).json({ error: 'Failed to sync transactions' });
+    res.status(500).json({ error: 'Failed to sync transactions', detail: plaidErrorDetail(err) });
   }
 });
 

@@ -1,11 +1,17 @@
 const Database = require('better-sqlite3');
 const path = require('path');
+const fs = require('fs');
 
-const DB_PATH = path.join(__dirname, '.freebuff', 'budgeting.db');
+const DB_DIR = path.join(__dirname, '.freebuff');
+const DB_PATH = path.join(DB_DIR, 'budgeting.db');
 let db;
 
 function getDB() {
   if (!db) {
+    // Ensure the directory exists before creating the database
+    if (!fs.existsSync(DB_DIR)) {
+      fs.mkdirSync(DB_DIR, { recursive: true });
+    }
     db = new Database(DB_PATH);
     db.pragma('journal_mode = WAL');
     db.pragma('foreign_keys = ON');

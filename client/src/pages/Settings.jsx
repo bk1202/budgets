@@ -65,8 +65,9 @@ export default function Settings() {
         handler.open()
       }
       document.body.appendChild(script)
-    } catch {
-      toast.error('Failed to initialize bank connection. Check your Plaid API credentials.')
+    } catch (err) {
+      const detail = err.response?.data?.detail || err.message || 'Unknown error'
+      toast.error(`Failed to initialize bank connection: ${detail}`)
       setConnecting(false)
     }
   }, [])
